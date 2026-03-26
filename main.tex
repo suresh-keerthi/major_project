@@ -231,6 +231,41 @@ This setup resulted in only 41.9 million trainable parameters (≈0.52\% of the 
 
 \subsection{Sequential Python Inference Pipeline}
 
+\begin{figure*}[!htbp]
+\centering
+\begin{tikzpicture}[
+    node distance = 1.5cm and 1cm,
+    font=\small\sffamily,
+    % Define styles
+    block/.style = {rectangle, draw=primary, fill=stage2bg, text width=2.8cm, text centered, rounded corners, minimum height=1cm, thick, drop shadow},
+    input/.style = {rectangle, draw=stage3border, fill=neutral, text width=2cm, text centered, rounded corners, minimum height=0.8cm, dashed},
+    output/.style = {rectangle, draw=tertiary, fill=outputcolor, text width=2cm, text centered, rounded corners, minimum height=0.8cm, thick},
+    arrow/.style = {thick, ->, >=stealth, draw=stage3border},
+    annot/.style = {text width=4cm, text centered}
+]
+
+% Nodes
+\node [input] (tweet) {Raw Tweet};
+\node [block, right=of tweet] (ling) {\textbf{Linguistic Analysis} \\ \scriptsize (Sentiment \& Tone)};
+\node [block, right=of ling] (target) {\textbf{Target Gen.} \\ \scriptsize (Explicit/Implicit)};
+\node [block, right=of target] (stance) {\textbf{Stance Class.} \\ \scriptsize (Favor/Against/None)};
+\node [output, right=of stance] (output) {Final Prediction};
+
+% Arrows
+\draw [arrow] (tweet) -- (ling);
+\draw [arrow] (ling) -- (target) node[midway, above] {\scriptsize Context summary};
+\draw [arrow] (target) -- (stance) node[midway, above] {\scriptsize Target string};
+\draw [arrow] (stance) -- (output);
+
+% Bypass arrows for "No Analysis" branch
+\draw [arrow, dashed, draw=secondary] (tweet) to[bend left=25] node[midway, above] {\scriptsize Direct "No Analysis" Inference} (target);
+
+\end{tikzpicture}
+\vspace{2mm}
+\caption{The 3-stage Sequential Inference Pipeline orchestrated via Ollama. The comprehensive "With Analysis" path uses an intermediate sentiment/tone generator to condition downstream target generation, while the ablation path bypasses it.}
+\label{fig:architecture}
+\end{figure*}
+
 We implemented a lightweight, sequential inference pipeline in Python that interacts with a locally-hosted Ollama instance serving the finetuned Llama 3.1 8B model. The pipeline consists of three LLM calls executed in series, with an optional conditioning branch that runs target and stance prediction twice: once directly and once using the output of an initial linguistic analysis step. This design allows us to compare the benefit of explicit sentiment/tone priming against naive single-pass generation.
 
 The workflow is orchestrated using simple \texttt{requests.post} calls to the Ollama generate endpoint (\texttt{http://localhost:11434/api/generate}) with temperature set to 0.0 for deterministic outputs. A lightweight post-processing function cleans minor prompt leakage, removes stray quotes, and normalizes the response text.
