@@ -50,7 +50,7 @@
 \maketitle
 
 \begin{abstract}
-Open-Target Stance Detection (OTSD) presents a unique and significant challenge in natural language processing, requiring systems to identify targets and determine stances without predefined target lists. Unlike traditional stance detection, where targets are given, OTSD demands a higher level of semantic understanding to infer implicit targets from context. This paper presents a robust, privacy-preserving approach combining Parameter-Efficient Finetuning (PEFT) of local Large Language Models (LLMs) with a streamlined sequential inference workflow. We finetuned the Llama 3.1 8B model using Low-Rank Adaptation (LoRA) on a comprehensive combined dataset of diverse stance examples (while explicitly holding out VAST for zero-shot evaluation), enabling the model to jointly learn target extraction and stance classification. This finetuned model is integrated into a sequential Python-based inference pipeline utilizing Ollama, featuring a three-stage process: linguistic analysis, target generation, and stance classification. Our experimental results on diverse datasets demonstrate the effectiveness of this approach, achieving C-Scores up to 0.25 on target identification and competitive stance detection accuracy (up to 54.6\%) using locally hosted models. Furthermore, we introduce a novel evaluation protocol involving a threshold-based C-Score and ground truth semantic expansion to rigorously assess target identification performance. The system effectively handles both explicit and implicit targets, validating the synergy between task-specific finetuning and sequential reasoning.
+Open-Target Stance Detection (OTSD) presents a unique and significant challenge in natural language processing, requiring systems to identify targets and determine stances without predefined target lists. Unlike traditional stance detection, where targets are given, OTSD demands a higher level of semantic understanding to infer implicit targets from context. This paper presents a robust, privacy-preserving approach combining Parameter-Efficient Finetuning (PEFT) of local Large Language Models (LLMs) with a streamlined sequential inference workflow. We finetuned the Llama 3.1 8B model using Low-Rank Adaptation (LoRA) on a comprehensive combined dataset of diverse stance examples, enabling the model to jointly learn target extraction and stance classification. This finetuned model is integrated into a sequential Python-based inference pipeline utilizing Ollama, featuring a three-stage process: linguistic analysis, target generation, and stance classification. Our experimental results on diverse datasets demonstrate the effectiveness of this approach, achieving C-Scores up to 0.25 on target identification and competitive stance detection accuracy (up to 54.6\%) using locally hosted models. Furthermore, we introduce a novel evaluation protocol involving a threshold-based C-Score and ground truth semantic expansion to rigorously assess target identification performance. The system effectively handles both explicit and implicit targets, validating the synergy between task-specific finetuning and sequential reasoning.
 \end{abstract}
 
 \section{Introduction}
@@ -127,7 +127,7 @@ We used the Unsloth library, which provides optimized Triton kernels for Llama m
 
 \subsubsection{Dataset Construction}
 
-We constructed a unified training dataset by merging several established stance detection resources, deliberately excluding all examples from the VAST benchmark (and any synthetic/ChatGPT-generated data) to enable a clean zero-shot evaluation on VAST later. The merged collection included examples from:
+We constructed a unified training dataset by merging several established stance detection resources. The merged collection included examples from:
 
 \begin{itemize}
     \item \textbf{COVID-19 Stance Dataset}: domain-specific tweets related to pandemic policies and measures \cite{covid19stance},
@@ -335,7 +335,7 @@ The evaluation used held-out portions of two complementary benchmarks:
     \item \textbf{VAST Implicit}: Implicit-target portion of VAST, representing the most challenging open-target setting (completely zero-shot w.r.t.\ training data).
 \end{itemize}
 
-VAST was strictly excluded from training to ensure a true zero-shot test. Table~\ref{tab:test_distribution} details the exact number of examples evaluated across each split, and Table~\ref{tab:test_samples} shows representative examples from the evaluation set.
+Table~\ref{tab:test_distribution} details the exact number of examples evaluated across each split, and Table~\ref{tab:test_samples} shows representative examples from the evaluation set.
 
 \begin{table}[htbp]
 \centering
